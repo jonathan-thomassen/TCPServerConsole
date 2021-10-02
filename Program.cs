@@ -17,7 +17,6 @@ namespace TCPServerConsole
         {
             TcpListener listener = new TcpListener(System.Net.IPAddress.Any, 2121);
             listener.Start();
-
             Console.WriteLine("Server started.");
 
             while (true)
@@ -47,11 +46,7 @@ namespace TCPServerConsole
                 {
                     if (players.Count > 0)
                     {
-                        foreach (FootballPlayer player in players)
-                        {
-                            writer.WriteLine(
-                                $"Id: {player.Id}, Name: {player.Name}, Number: {player.ShirtNumber}, Price: {player.Price}");
-                        }
+                        writer.WriteLine(JsonSerializer.Serialize(players));
                     }
                     else
                     {
@@ -62,21 +57,19 @@ namespace TCPServerConsole
                 {
                     if (int.TryParse(line2, out int id))
                     {
-                        FootballPlayer player = players.Find(player => player.Id == id);
+                        FootballPlayer player = players.Find(p => p.Id == id);
                         if (player != null)
                         {
-                            writer.WriteLine(
-                                $"Id: {player.Id}, Name: {player.Name}, Number: {player.ShirtNumber}, Price: {player.Price}");
+                            writer.WriteLine(JsonSerializer.Serialize(player));
                         }
                         else
                         {
                             writer.WriteLine("Player does not exist in database. Please try another id.");
                         }
-
                     }
                     else
                     {
-                        writer.WriteLine("Not a valid id number. Please enter a valid id number.");
+                        writer.WriteLine("Not a valid id number. Please enter an integer.");
                     }
                 }
                 else if (line1.ToLower().StartsWith("gem"))
@@ -90,12 +83,12 @@ namespace TCPServerConsole
                     catch
                     {
                         writer.WriteLine("Error encountered, player not added to database. Please check JSON and try again.");
-                        
+
                     }
                 }
                 else
                 {
-                    writer.WriteLine("Command not recognised. Please try again.");
+                    writer.WriteLine("Command not recognized. Please try again.");
                 }
                 writer.Flush();
 
